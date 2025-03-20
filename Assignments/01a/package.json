@@ -1,0 +1,20 @@
+{
+  "name": "01a",
+  "version": "1.0.0",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "body-parser": "^1.20.3",
+    "csv-parser": "^3.2.0",
+    "express": "^4.21.2",
+    "js-yaml": "^4.1.0",
+    "xml2js": "^0.6.2"
+  }
+}
