@@ -1,26 +1,29 @@
-import './style.css'
+import './style.css';
+
 import firebase from "firebase/compat/app";
 import "firebase/compat/firestore";
 
 
 // Your web app's Firebase configuration
-// For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
-  apiKey: "AIzaSyDVIEJj1YqJknLlFH60kbwLeUBwaGFj6B8",
-  authDomain: "fir-webrtc-718b7.firebaseapp.com",
-  projectId: "fir-webrtc-718b7",
-  storageBucket: "fir-webrtc-718b7.firebasestorage.app",
-  messagingSenderId: "431256302435",
-  appId: "1:431256302435:web:1277139d309433cc369956",
-  measurementId: "G-VS7EFD43HG"
+  apiKey: "AIzaSyC3v0hEe1wmfhdWAKpeJvSMSBvUI-BjGVA",
+  authDomain: "webrtc-dc295.firebaseapp.com",
+  projectId: "webrtc-dc295",
+  storageBucket: "webrtc-dc295.firebasestorage.app",
+  messagingSenderId: "967549457557",
+  appId: "1:967549457557:web:0aeffadc33718a0a89b79c"
 };
 
 const app = firebase.initializeApp(firebaseConfig);
 const firestore = firebase.firestore();
 
+
+// HTML elements
 const localVideo = document.getElementById("localVideo");
 const remoteVideo = document.getElementById("remoteVideo");
 
+
+// Global state
 const GLOBAL_CALL_ID = "GLOBAL_CALL_ID";
 let localStream;
 let remoteStream;
@@ -29,12 +32,9 @@ let peerConnection;
 const servers = {
   iceServers: [
       {
-          urls: [
-              "stun:stun.l.google.com:19302",
-              "stun:stun1.l.google.com:19302",
-          ],
-      },
-],
+          urls: ['stun:stun1.l.google.com:19302'],
+      }
+  ]
 };
 
 async function startCall() {
