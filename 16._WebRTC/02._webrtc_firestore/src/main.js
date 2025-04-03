@@ -9,7 +9,7 @@ const firebaseConfig = {
   apiKey: "AIzaSyC3v0hEe1wmfhdWAKpeJvSMSBvUI-BjGVA",
   authDomain: "webrtc-dc295.firebaseapp.com",
   projectId: "webrtc-dc295",
-  storageBucket: "webrtc-dc295.firebasestorage.app",
+  storageBucket: "webrtc-dc295.appspot.com", // Fixed the storage bucket URL
   messagingSenderId: "967549457557",
   appId: "1:967549457557:web:0aeffadc33718a0a89b79c"
 };
@@ -88,47 +88,77 @@ answerCandidates.onSnapshot((snapshot) => {
 
 
 async function answerCall() {
-	const callDocument = firestore.collection("calls").doc(GLOBAL_CALL_ID);
-	const offerCandidates = callDocument.collection("offerCandidates");
-	const answerCandidates = callDocument.collection("answerCandidates");
+  try {
+    const callDocument = firestore.collection("calls").doc(GLOBAL_CALL_ID);
+    const offerCandidates = callDocument.collection("offerCandidates");
+    const answerCandidates = callDocument.collection("answerCandidates");
 
-	peerConnection = new RTCPeerConnection(servers);
+    // Get the call snapshot first to check if there's an offer
+    const callSnapshot = await callDocument.get();
+    if (!callSnapshot.exists || !callSnapshot.data()?.offer) {
+      alert("No call to answer. Please wait for someone to start a call first.");
+      console.error("No offer found.");
+      return;
+    }
 
-	peerConnection.onicecandidate = (event) => {
-		event.candidate && answerCandidates.add(event.candidate.toJSON());
-	};
+    // Create peer connection
+    peerConnection = new RTCPeerConnection(servers);
 
-	localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
-	localVideo.srcObject = localStream;
+    // Set up local media stream
+    localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true }); // Changed to include audio
+    localVideo.srcObject = localStream;
 
-	remoteStream = new MediaStream();
-	remoteVideo.srcObject = remoteStream;
+    // Set up remote stream
+    remoteStream = new MediaStream();
+    remoteVideo.srcObject = remoteStream;
 
-	localStream.getTracks().forEach((track) => peerConnection.addTrack(track, localStream));
+    // Add local tracks to peer connection
+    localStream.getTracks().forEach((track) => peerConnection.addTrack(track, localStream));
 
-	peerConnection.ontrack = (event) => {
-		event.streams[0].getTracks().forEach((track) => remoteStream.addTrack(track));
-	};
+    // Listen for remote tracks
+    peerConnection.ontrack = (event) => {
+      event.streams[0].getTracks().forEach((track) => remoteStream.addTrack(track));
+    };
 
-	const callSnapshot = await callDocument.get();
-	if (!callSnapshot.exists || !callSnapshot.data()?.offer) {
-		console.error("No offer found.");
-		return;
-	}
+    // Send ice candidates to firestore
+    peerConnection.onicecandidate = (event) => {
+      if (event.candidate) {
+        answerCandidates.add(event.candidate.toJSON());
+      }
+    };
 
-	await peerConnection.setRemoteDescription(new RTCSessionDescription(callSnapshot.data().offer));
+    // Set remote description from the offer
+    await peerConnection.setRemoteDescription(new RTCSessionDescription(callSnapshot.data().offer));
 
-	const answerDescription = await peerConnection.createAnswer();
-	await peerConnection.setLocalDescription(answerDescription);
-	await callDocument.update({ answer: { type: answerDescription.type, sdp: answerDescription.sdp } });
+    // Create and set local description
+    const answerDescription = await peerConnection.createAnswer();
+    await peerConnection.setLocalDescription(answerDescription);
+    
+    // Update the document with the answer
+    await callDocument.update({ 
+      answer: { 
+        type: answerDescription.type, 
+        sdp: answerDescription.sdp 
+      } 
+    });
 
-	offerCandidates.onSnapshot((snapshot) => {
-		snapshot.docChanges().forEach((change) => {
-			if (change.type === "added") {
-				peerConnection.addIceCandidate(new RTCIceCandidate(change.doc.data()));
-			}
-		});
-	});
+    // Listen for new ICE candidates from the offer side
+    offerCandidates.onSnapshot((snapshot) => {
+      snapshot.docChanges().forEach((change) => {
+        if (change.type === "added") {
+          const candidate = new RTCIceCandidate(change.doc.data());
+          peerConnection.addIceCandidate(candidate).catch(err => {
+            console.error("Error adding ICE candidate:", err);
+          });
+        }
+      });
+    });
+
+    console.log("Call answered successfully!");
+  } catch (error) {
+    console.error("Error answering call:", error);
+    alert("Failed to answer call: " + error.message);
+  }
 }
 
 document.getElementById("startCall").addEventListener("click", startCall);
