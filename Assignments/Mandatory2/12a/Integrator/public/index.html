@@ -106,6 +106,22 @@
     </div>
   </div>
   
-  <script src="/js/main.js"></script>
+  <script>
+    // Fetch configuration from the server
+    async function fetchConfig() {
+      const response = await fetch('/api/config');
+      const data = await response.json();
+      
+      // Update the UI with configuration
+      document.getElementById('webhookServerUrl').href = data.webhookServer;
+      document.getElementById('webhookServerUrl').textContent = data.webhookServer;
+      document.getElementById('publicUrl').textContent = `${data.publicUrl}/webhook`;
+    }
+
+    // And the rest of your JavaScript...
+    
+    // Start the application when the page loads
+    window.addEventListener('DOMContentLoaded', initPage);
+  </script>
 </body>
 </html>
