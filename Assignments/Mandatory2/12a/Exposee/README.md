@@ -159,8 +159,10 @@ For ping events, the payload will look like:
   }
 }
 ```
-Integration Guidelines
-Register a webhook with the events you want to listen for
-Implement an HTTP endpoint at your specified URL that accepts POST requests
-Your endpoint should respond with a 2xx status code upon successful receipt
-For testing, use the /ping endpoint to verify your webhook is receiving events properly
+
+## Integration Guidelines
+
+1. Register a webhook with the events you want to listen for
+2. Implement an HTTP endpoint at your specified URL that accepts POST requests
+3. Your endpoint should respond with a 2xx status code upon successful receipt
+4. For testing, use the /ping endpoint to verify your webhook is receiving events properly
