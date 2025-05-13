@@ -1,7 +1,6 @@
 const express = require('express');
 const bodyParser = require('body-parser');
-const swaggerUi = require('swagger-ui-express');
-const swaggerSpec = require('./swagger'); // Import your swagger configuration
+const swaggerSpec = require('./swagger');
 const webhookRoutes = require('./routes/webhook');
 const webhookService = require('./services/webhook-service');
 
@@ -11,8 +10,39 @@ const PORT = process.env.PORT || 3000;
 // Middleware
 app.use(bodyParser.json());
 
-// Swagger documentation - keep original path for backward compatibility
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+// Serve Swagger UI with CDN
+app.get('/api-docs', (req, res) => {
+  res.writeHead(200, { 'Content-Type': 'text/html' });
+  res.write(`
+    <!DOCTYPE html>
+    <html>
+      <head>
+        <title>Order Webhook API - Swagger UI</title>
+        <meta charset="UTF-8">
+        <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/swagger-ui-dist@5.9.0/swagger-ui.css">
+      </head>
+      <body>
+        <div id="swagger-ui"></div>
+        <script src="https://cdn.jsdelivr.net/npm/swagger-ui-dist@5.9.0/swagger-ui-bundle.js"></script>
+        <script>
+          window.onload = () => {
+            window.ui = SwaggerUIBundle({
+              spec: ${JSON.stringify(swaggerSpec)},
+              dom_id: '#swagger-ui',
+              deepLinking: true,
+              presets: [
+                SwaggerUIBundle.presets.apis,
+                SwaggerUIBundle.SwaggerUIStandalonePreset
+              ],
+              layout: "StandaloneLayout"
+            });
+          };
+        </script>
+      </body>
+    </html>
+  `);
+  res.end();
+});
 
 // Redirect root to Swagger UI
 app.get('/', (req, res) => {
