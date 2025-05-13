@@ -1,6 +1,11 @@
 const swaggerJSDoc = require('swagger-jsdoc');
 const path = require('path');
 
+// Determine the server URL (local or production)
+const serverUrl = process.env.VERCEL_URL 
+  ? `https://${process.env.VERCEL_URL}`
+  : 'http://localhost:3000';
+
 const swaggerDefinition = {
   openapi: '3.0.0',
   info: {
@@ -14,8 +19,8 @@ const swaggerDefinition = {
   },
   servers: [
     {
-      url: 'http://localhost:3000',
-      description: 'Development server',
+      url: serverUrl,
+      description: process.env.VERCEL_URL ? 'Production server' : 'Development server',
     },
   ],
   tags: [
