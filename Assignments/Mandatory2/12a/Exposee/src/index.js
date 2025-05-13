@@ -19,23 +19,32 @@ app.get('/api-docs', (req, res) => {
       <head>
         <title>Order Webhook API - Swagger UI</title>
         <meta charset="UTF-8">
-        <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/swagger-ui-dist@5.9.0/swagger-ui.css">
+        <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/swagger-ui-dist@4.5.0/swagger-ui.css">
+        <style>
+          html { box-sizing: border-box; overflow: -moz-scrollbars-vertical; overflow-y: scroll; }
+          *, *:before, *:after { box-sizing: inherit; }
+          body { margin: 0; background: #fafafa; }
+        </style>
       </head>
       <body>
         <div id="swagger-ui"></div>
-        <script src="https://cdn.jsdelivr.net/npm/swagger-ui-dist@5.9.0/swagger-ui-bundle.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/swagger-ui-dist@4.5.0/swagger-ui-bundle.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/swagger-ui-dist@4.5.0/swagger-ui-standalone-preset.js"></script>
         <script>
-          window.onload = () => {
-            window.ui = SwaggerUIBundle({
+          window.onload = function() {
+            const ui = SwaggerUIBundle({
               spec: ${JSON.stringify(swaggerSpec)},
               dom_id: '#swagger-ui',
               deepLinking: true,
               presets: [
                 SwaggerUIBundle.presets.apis,
-                SwaggerUIBundle.SwaggerUIStandalonePreset
+                SwaggerUIStandalonePreset
               ],
-              layout: "StandaloneLayout"
+              plugins: [
+                SwaggerUIBundle.plugins.DownloadUrl
+              ]
             });
+            window.ui = ui;
           };
         </script>
       </body>
