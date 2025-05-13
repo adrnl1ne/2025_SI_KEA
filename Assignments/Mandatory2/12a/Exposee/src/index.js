@@ -11,8 +11,13 @@ const PORT = process.env.PORT || 3000;
 // Middleware
 app.use(bodyParser.json());
 
-// Swagger documentation
+// Swagger documentation - keep original path for backward compatibility
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+
+// Redirect root to Swagger UI
+app.get('/', (req, res) => {
+  res.redirect('/api-docs');
+});
 
 // Routes
 app.use('/webhooks', webhookRoutes);
@@ -43,4 +48,5 @@ app.get('/ping', async (req, res) => {
 app.listen(PORT, () => {
   console.log(`Webhook service running on port ${PORT}`);
   console.log(`Swagger documentation available at http://localhost:${PORT}/api-docs`);
+  console.log(`Root path redirects to Swagger UI`);
 });
