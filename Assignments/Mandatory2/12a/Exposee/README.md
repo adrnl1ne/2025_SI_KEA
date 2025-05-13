@@ -6,15 +6,7 @@ A webhook registration system for e-commerce order events, allowing integrators 
 
 This system provides a simple API for registering, managing, and testing webhooks. It's designed to notify external services about events in an order processing workflow.
 
-## Getting Started
 
-1. Install dependencies:
-npm install
-
-2. Start the server:
-npm start
-
-3. The server will run on port 3000 by default.
 
 ## Event Types
 
@@ -31,8 +23,8 @@ The following event types are supported:
 
 The API comes with Swagger UI for easy documentation and testing:
 
-1. Start the server:
-2. Navigate to http://localhost:3000/api-docs in your browser
+1. Start the server: 2awebhooksystem.vercel.app
+2. Navigate to  in your browser
 
 3. Use the Swagger UI to explore and test the API endpoints directly from your browser
 
