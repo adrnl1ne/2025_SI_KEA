@@ -52,19 +52,26 @@ async function saveData(filePath, data) {
   }
 }
 
-// Load data from file
+// Load data from file or KV store
 async function loadData(filePath, defaultValue) {
-  try {
-    await ensureDataDir();
-    const data = await fs.readFile(filePath, 'utf8');
-    return JSON.parse(data);
-  } catch (error) {
-    if (error.code === 'ENOENT') {
-      // File doesn't exist yet, return default
+  if (process.env.NODE_ENV === 'production') {
+    // Use KV storage in production
+    const key = path.basename(filePath, '.json');
+    return kvStorage.loadData(key, defaultValue);
+  } else {
+    // Use file storage in development
+    try {
+      await ensureDataDir();
+      const data = await fs.readFile(filePath, 'utf8');
+      return JSON.parse(data);
+    } catch (error) {
+      if (error.code === 'ENOENT') {
+        // File doesn't exist yet, return default
+        return defaultValue;
+      }
+      console.error(`Error loading from ${filePath}:`, error);
       return defaultValue;
     }
-    console.error(`Error loading from ${filePath}:`, error);
-    return defaultValue;
   }
 }
 
